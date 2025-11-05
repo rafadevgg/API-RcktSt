@@ -22,7 +22,7 @@ public class UserModel {
     @Column(name = "tb_id")
     private Long id;
 
-    @Column(name = "tb_username")
+    @Column(name = "tb_username", unique = true)
     private String username;
 
     @Column(name = "tb_name")

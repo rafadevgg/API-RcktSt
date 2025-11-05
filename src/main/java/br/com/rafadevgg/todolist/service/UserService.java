@@ -17,7 +17,14 @@ public class UserService {
     @Transactional
     public UserResponseDTO createUser(UserRequestDTO userRequest) {
 
+        var userModel = userRepository.findByUsername(userRequest.name());
+
+        if(userModel != null) {
+            throw new RuntimeException("Usuário já existente!");
+        }
+
         UserModel user = new UserModel();
+
         user.setUsername(userRequest.username());
         user.setName(userRequest.name());
         user.setPassword(userRequest.password());
@@ -25,11 +32,13 @@ public class UserService {
         userRepository.save(user);
 
         return new UserResponseDTO(
+
                 user.getId(),
                 user.getUsername(),
                 user.getName(),
                 user.getPassword(),
                 user.getDateCreation()
+
         );
 
     }
