@@ -7,7 +7,6 @@ public record UserResponseDTO(
         Long id,
         String username,
         String name,
-        String password,
         LocalDateTime dateCreation
 
 ) {

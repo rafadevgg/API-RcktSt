@@ -1,5 +1,6 @@
 package br.com.rafadevgg.todolist.service;
 
+import at.favre.lib.crypto.bcrypt.BCrypt;
 import br.com.rafadevgg.todolist.dto.request.UserRequestDTO;
 import br.com.rafadevgg.todolist.dto.response.UserResponseDTO;
 import br.com.rafadevgg.todolist.entity.UserModel;
@@ -17,7 +18,7 @@ public class UserService {
     @Transactional
     public UserResponseDTO createUser(UserRequestDTO userRequest) {
 
-        var userModel = userRepository.findByUsername(userRequest.name());
+        var userModel = userRepository.findByUsername(userRequest.username());
 
         if(userModel != null) {
             throw new RuntimeException("Usuário já existente!");
@@ -27,7 +28,8 @@ public class UserService {
 
         user.setUsername(userRequest.username());
         user.setName(userRequest.name());
-        user.setPassword(userRequest.password());
+        var passwordHash = BCrypt.withDefaults().hashToString(12, userRequest.password().toCharArray());
+        user.setPassword(passwordHash);
 
         userRepository.save(user);
 
@@ -36,7 +38,6 @@ public class UserService {
                 user.getId(),
                 user.getUsername(),
                 user.getName(),
-                user.getPassword(),
                 user.getDateCreation()
 
         );
