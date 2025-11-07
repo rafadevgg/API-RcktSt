@@ -4,6 +4,7 @@ import br.com.rafadevgg.todolist.dto.request.TaskRequestDTO;
 import br.com.rafadevgg.todolist.dto.response.TaskResponseDTO;
 import br.com.rafadevgg.todolist.entity.TaskModel;
 import br.com.rafadevgg.todolist.repository.TaskRepository;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,7 +16,10 @@ public class TaskService {
     private TaskRepository taskRepository;
 
     @Transactional
-    public TaskResponseDTO createTask(TaskRequestDTO taskRequest) {
+    public TaskResponseDTO createTask(TaskRequestDTO taskRequest, HttpServletRequest request) {
+
+        var idUser = request.getAttribute("idUser");
+        taskRequest.setIdUser(idUser);
 
         TaskModel task = new TaskModel();
 

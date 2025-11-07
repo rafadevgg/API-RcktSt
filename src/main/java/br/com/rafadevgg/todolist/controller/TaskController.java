@@ -3,6 +3,7 @@ package br.com.rafadevgg.todolist.controller;
 import br.com.rafadevgg.todolist.dto.request.TaskRequestDTO;
 import br.com.rafadevgg.todolist.dto.response.TaskResponseDTO;
 import br.com.rafadevgg.todolist.service.TaskService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -20,7 +21,8 @@ public class TaskController {
     private TaskService taskService;
 
     @PostMapping
-    public ResponseEntity<TaskResponseDTO> createTask(@RequestBody @Valid TaskRequestDTO taskRequest) {
+    public ResponseEntity<TaskResponseDTO> createTask(@RequestBody @Valid TaskRequestDTO taskRequest,
+                                                      HttpServletRequest request) {
         var create = taskService.createTask(taskRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(create);
     }
