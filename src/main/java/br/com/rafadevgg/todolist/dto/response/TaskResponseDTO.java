@@ -10,7 +10,8 @@ public record TaskResponseDTO(
         LocalDateTime dateStart,
         LocalDateTime dateEnd,
         String priority,
-        LocalDateTime dateCreation
+        LocalDateTime dateCreation,
+        Long userId
 
 ) {
 }

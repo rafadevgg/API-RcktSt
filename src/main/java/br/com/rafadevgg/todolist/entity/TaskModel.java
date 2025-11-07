@@ -41,7 +41,7 @@ public class TaskModel {
     @Column(name = "tb_criacao")
     private LocalDateTime dateCreation;
 
-    /*@JoinColumn(name = "idUser")
-    private UserModel idUser;*/
-
+    @ManyToOne
+    @JoinColumn(name = "id_user", nullable = false)
+    private UserModel user;
 }

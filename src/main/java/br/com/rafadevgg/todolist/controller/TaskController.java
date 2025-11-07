@@ -23,7 +23,7 @@ public class TaskController {
     @PostMapping
     public ResponseEntity<TaskResponseDTO> createTask(@RequestBody @Valid TaskRequestDTO taskRequest,
                                                       HttpServletRequest request) {
-        var create = taskService.createTask(taskRequest);
+        var create = taskService.createTask(taskRequest, request);
         return ResponseEntity.status(HttpStatus.CREATED).body(create);
     }
 }
