@@ -10,6 +10,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/v1/tasks")
 public class TaskController {
@@ -27,7 +29,13 @@ public class TaskController {
     @GetMapping("{id}")
     public ResponseEntity<TaskResponseDTO> listTask(@PathVariable Long id,
                                                     HttpServletRequest request) {
-        var list = taskService.listTask(id, request);
+        var list = taskService.getTaskById(id, request);
         return ResponseEntity.status(HttpStatus.OK).body(list);
+    }
+
+    @GetMapping
+    public ResponseEntity<List<TaskResponseDTO>> listAllTasksByUser(HttpServletRequest request) {
+        var listAll = taskService.listAllTasksByUser(request);
+        return ResponseEntity.status(HttpStatus.OK).body(listAll);
     }
 }

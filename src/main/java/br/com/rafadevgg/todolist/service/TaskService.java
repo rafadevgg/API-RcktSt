@@ -57,18 +57,18 @@ public class TaskService {
     }
 
     @Transactional
-    public List<TaskResponseDTO> listTask(Long id, HttpServletRequest request) {
+    public TaskResponseDTO getTaskById(Long id, HttpServletRequest request) {
 
         Long idUser = (Long) request.getAttribute("idUser");
-
-        UserModel user = userRepository.findById(idUser)
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado!"));
 
         TaskModel task = taskRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Tarefa não encontrada!"));
 
-        return new TaskResponseDTO(
+        if (!task.getUser().getId().equals(idUser)) {
+            throw new RuntimeException("Você não tem permissão para acessar esta tarefa!");
+        }
 
+        return new TaskResponseDTO(
                 task.getId(),
                 task.getTitle(),
                 task.getDescription(),
@@ -78,6 +78,32 @@ public class TaskService {
                 task.getDateCreation(),
                 task.getUser().getId()
         );
-
     }
+
+    @Transactional
+    public List<TaskResponseDTO> listAllTasksByUser(HttpServletRequest request) {
+
+        Long idUser = (Long) request.getAttribute("idUser");
+
+        userRepository.findById(idUser)
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado!"));
+
+        List<TaskModel> tasks = taskRepository.findByUserId(idUser);
+
+        return tasks.stream().map(this:: convertToResponseDTO).toList();
+    }
+
+    private TaskResponseDTO convertToResponseDTO(TaskModel task) {
+        return new TaskResponseDTO(
+                task.getId(),
+                task.getTitle(),
+                task.getDescription(),
+                task.getDateStart(),
+                task.getDateEnd(),
+                task.getPriority(),
+                task.getDateCreation(),
+                task.getUser().getId()
+        );
+    }
+
 }
