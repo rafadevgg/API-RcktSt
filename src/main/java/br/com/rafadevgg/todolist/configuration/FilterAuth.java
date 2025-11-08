@@ -22,7 +22,7 @@ public class FilterAuth extends OncePerRequestFilter {
 
         var servletPath = request.getServletPath();
 
-        if (servletPath.equals("/api/v1/tasks")) {
+        if (servletPath.startsWith("/api/v1/tasks")) {
             var authorization = request.getHeader("Authorization");
             if (authorization == null || authorization.isBlank()) {
                 response.sendError(401, "Header Authorization não informado");
