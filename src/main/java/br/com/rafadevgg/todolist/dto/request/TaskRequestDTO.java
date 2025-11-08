@@ -1,5 +1,6 @@
 package br.com.rafadevgg.todolist.dto.request;
 
+import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -18,10 +19,12 @@ public record TaskRequestDTO(
         String description,
 
         @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+        @Future(message = "Não pode ser uma data passada!")
         @NotNull(message = "É preciso informar a data de início da tarefa!")
         LocalDateTime dateStart,
 
         @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+        @Future(message = "Não pode ser uma data passada!")
         @NotNull(message = "É preciso informar a data do fim da tarefa!")
         LocalDateTime dateEnd,
 
