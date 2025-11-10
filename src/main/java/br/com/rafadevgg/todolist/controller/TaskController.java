@@ -39,9 +39,9 @@ public class TaskController {
         return ResponseEntity.status(HttpStatus.OK).body(listAll);
     }
 
-    @PutMapping
+    @PutMapping("{id}")
     public ResponseEntity<TaskResponseDTO> updateTask(@PathVariable Long id,
-                                                      @RequestBody @Valid TaskRequestDTO taskRequest,
+                                                      @RequestBody TaskRequestDTO taskRequest,
                                                       HttpServletRequest request) {
         var update = taskService.updateTask(id, taskRequest, request);
         return ResponseEntity.status(HttpStatus.OK).body(update);

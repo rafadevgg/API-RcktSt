@@ -94,7 +94,7 @@ public class TaskService {
         List<TaskModel> tasks = taskRepository.findByUserId(idUser);
 
         return tasks.stream().map(this:: convertToResponseDTO).toList();
-        
+
     }
 
     private TaskResponseDTO convertToResponseDTO(TaskModel task) {
@@ -125,9 +125,25 @@ public class TaskService {
         TaskModel task = taskRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Tarefa não encontrada!"));
 
-        task.setTitle(taskRequest.title());
-        task.setDescription(taskRequest.title());
-        task.setPriority(taskRequest.priority());
+        if (!task.getUser().getId().equals(idUser)) {
+            throw new RuntimeException("Você não tem permissão para atualizar esta tarefa!");
+        }
+        if (taskRequest.title() != null && !taskRequest.title().isBlank()) {
+            task.setTitle(taskRequest.title());
+        }
+        if (taskRequest.description() != null && !taskRequest.description().isBlank()) {
+            task.setDescription(taskRequest.description());
+        }
+        if (taskRequest.priority() != null && !taskRequest.priority().isBlank()) {
+            task.setPriority(taskRequest.priority());
+        }
+        if (taskRequest.dateStart() != null) {
+            task.setDateStart(taskRequest.dateStart());
+        }
+        if (taskRequest.dateEnd() != null) {
+            task.setDateEnd(taskRequest.dateEnd());
+        }
+
 
         taskRepository.save(task);
 
