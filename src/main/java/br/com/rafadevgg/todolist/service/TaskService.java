@@ -69,6 +69,7 @@ public class TaskService {
         }
 
         return new TaskResponseDTO(
+
                 task.getId(),
                 task.getTitle(),
                 task.getDescription(),
@@ -77,7 +78,9 @@ public class TaskService {
                 task.getPriority(),
                 task.getDateCreation(),
                 task.getUser().getId()
+
         );
+
     }
 
     @Transactional
@@ -91,10 +94,13 @@ public class TaskService {
         List<TaskModel> tasks = taskRepository.findByUserId(idUser);
 
         return tasks.stream().map(this:: convertToResponseDTO).toList();
+        
     }
 
     private TaskResponseDTO convertToResponseDTO(TaskModel task) {
+
         return new TaskResponseDTO(
+
                 task.getId(),
                 task.getTitle(),
                 task.getDescription(),
@@ -103,7 +109,41 @@ public class TaskService {
                 task.getPriority(),
                 task.getDateCreation(),
                 task.getUser().getId()
+
         );
+
+    }
+
+    @Transactional
+    public TaskResponseDTO updateTask(Long id, TaskRequestDTO taskRequest, HttpServletRequest request) {
+
+        Long idUser = (Long) request.getAttribute("idUser");
+
+        UserModel user = userRepository.findById(idUser)
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado!"));
+
+        TaskModel task = taskRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Tarefa não encontrada!"));
+
+        task.setTitle(taskRequest.title());
+        task.setDescription(taskRequest.title());
+        task.setPriority(taskRequest.priority());
+
+        taskRepository.save(task);
+
+        return new TaskResponseDTO(
+
+                task.getId(),
+                task.getTitle(),
+                task.getDescription(),
+                task.getDateStart(),
+                task.getDateEnd(),
+                task.getPriority(),
+                task.getDateCreation(),
+                task.getUser().getId()
+
+        );
+
     }
 
 }
