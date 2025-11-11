@@ -4,6 +4,7 @@ import at.favre.lib.crypto.bcrypt.BCrypt;
 import br.com.rafadevgg.todolist.dto.request.UserRequestDTO;
 import br.com.rafadevgg.todolist.dto.response.UserResponseDTO;
 import br.com.rafadevgg.todolist.entity.UserModel;
+import br.com.rafadevgg.todolist.exception.UserAlreadyExistsException;
 import br.com.rafadevgg.todolist.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +22,7 @@ public class UserService {
         var userModel = userRepository.findByUsername(userRequest.username());
 
         if(userModel != null) {
-            throw new RuntimeException("Usuário já existente!");
+            throw new UserAlreadyExistsException("Usuário já existente!");
         }
 
         UserModel user = new UserModel();
@@ -34,14 +35,10 @@ public class UserService {
         userRepository.save(user);
 
         return new UserResponseDTO(
-
                 user.getId(),
                 user.getUsername(),
                 user.getName(),
                 user.getDateCreation()
-
         );
-
     }
-
 }

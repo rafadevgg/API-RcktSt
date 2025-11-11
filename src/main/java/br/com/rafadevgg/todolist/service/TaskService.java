@@ -4,6 +4,9 @@ import br.com.rafadevgg.todolist.dto.request.TaskRequestDTO;
 import br.com.rafadevgg.todolist.dto.response.TaskResponseDTO;
 import br.com.rafadevgg.todolist.entity.TaskModel;
 import br.com.rafadevgg.todolist.entity.UserModel;
+import br.com.rafadevgg.todolist.exception.InvalidDateException;
+import br.com.rafadevgg.todolist.exception.ResourceNotFoundException;
+import br.com.rafadevgg.todolist.exception.UnauthorizedException;
 import br.com.rafadevgg.todolist.repository.TaskRepository;
 import br.com.rafadevgg.todolist.repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
@@ -29,7 +32,15 @@ public class TaskService {
         Long idUser = (Long) request.getAttribute("idUser");
 
         UserModel user = userRepository.findById(idUser)
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado!"));
+                .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado!"));
+
+        if (taskRequest.dateStart().isAfter(taskRequest.dateEnd())) {
+            throw new InvalidDateException("A data de início não pode ser posterior à data de término!");
+        }
+
+        if (taskRequest.dateStart().isBefore(LocalDateTime.now())) {
+            throw new InvalidDateException("A data de início não pode ser no passado!");
+        }
 
         TaskModel task = new TaskModel();
         task.setTitle(taskRequest.title());
@@ -41,19 +52,7 @@ public class TaskService {
 
         taskRepository.save(task);
 
-        return new TaskResponseDTO(
-
-                task.getId(),
-                task.getTitle(),
-                task.getDescription(),
-                task.getDateStart(),
-                task.getDateEnd(),
-                task.getPriority(),
-                task.getDateCreation(),
-                task.getUser().getId()
-
-        );
-
+        return convertToResponseDTO(task);
     }
 
     @Transactional
@@ -62,25 +61,13 @@ public class TaskService {
         Long idUser = (Long) request.getAttribute("idUser");
 
         TaskModel task = taskRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Tarefa não encontrada!"));
+                .orElseThrow(() -> new ResourceNotFoundException("Tarefa não encontrada!"));
 
         if (!task.getUser().getId().equals(idUser)) {
-            throw new RuntimeException("Você não tem permissão para acessar esta tarefa!");
+            throw new UnauthorizedException("Você não tem permissão para acessar esta tarefa!");
         }
 
-        return new TaskResponseDTO(
-
-                task.getId(),
-                task.getTitle(),
-                task.getDescription(),
-                task.getDateStart(),
-                task.getDateEnd(),
-                task.getPriority(),
-                task.getDateCreation(),
-                task.getUser().getId()
-
-        );
-
+        return convertToResponseDTO(task);
     }
 
     @Transactional
@@ -89,29 +76,11 @@ public class TaskService {
         Long idUser = (Long) request.getAttribute("idUser");
 
         userRepository.findById(idUser)
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado!"));
+                .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado!"));
 
         List<TaskModel> tasks = taskRepository.findByUserId(idUser);
 
-        return tasks.stream().map(this:: convertToResponseDTO).toList();
-
-    }
-
-    private TaskResponseDTO convertToResponseDTO(TaskModel task) {
-
-        return new TaskResponseDTO(
-
-                task.getId(),
-                task.getTitle(),
-                task.getDescription(),
-                task.getDateStart(),
-                task.getDateEnd(),
-                task.getPriority(),
-                task.getDateCreation(),
-                task.getUser().getId()
-
-        );
-
+        return tasks.stream().map(this::convertToResponseDTO).toList();
     }
 
     @Transactional
@@ -119,15 +88,22 @@ public class TaskService {
 
         Long idUser = (Long) request.getAttribute("idUser");
 
-        UserModel user = userRepository.findById(idUser)
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado!"));
+        userRepository.findById(idUser)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado!"));
 
         TaskModel task = taskRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Tarefa não encontrada!"));
+                .orElseThrow(() -> new ResourceNotFoundException("Tarefa não encontrada!"));
 
         if (!task.getUser().getId().equals(idUser)) {
-            throw new RuntimeException("Você não tem permissão para atualizar esta tarefa!");
+            throw new UnauthorizedException("Você não tem permissão para atualizar esta tarefa!");
         }
+
+        if (taskRequest.dateStart() != null && taskRequest.dateEnd() != null) {
+            if (taskRequest.dateStart().isAfter(taskRequest.dateEnd())) {
+                throw new InvalidDateException("A data de início não pode ser posterior à data de término!");
+            }
+        }
+
         if (taskRequest.title() != null && !taskRequest.title().isBlank()) {
             task.setTitle(taskRequest.title());
         }
@@ -144,11 +120,13 @@ public class TaskService {
             task.setDateEnd(taskRequest.dateEnd());
         }
 
-
         taskRepository.save(task);
 
-        return new TaskResponseDTO(
+        return convertToResponseDTO(task);
+    }
 
+    private TaskResponseDTO convertToResponseDTO(TaskModel task) {
+        return new TaskResponseDTO(
                 task.getId(),
                 task.getTitle(),
                 task.getDescription(),
@@ -157,9 +135,6 @@ public class TaskService {
                 task.getPriority(),
                 task.getDateCreation(),
                 task.getUser().getId()
-
         );
-
     }
-
 }
